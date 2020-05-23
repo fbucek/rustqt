@@ -1,0 +1,14 @@
+{
+    // @see https://vector-of-bool.github.io/docs/vscode-cmake-tools/settings.html
+    "cmake.configureOnOpen": true,
+    "cmake.configureEnvironment": {
+        "CMAKE_MODULE_PATH": "${env:QTDIR}",
+        "CMAKE_PREFIX_PATH": "${env:QTDIR}"
+    },
+    "cmake.installPrefix": "${workspaceFolder}/../build",
+    "files.associations": {
+        "qtwidgets": "cpp",
+        "system_error": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled",
+}

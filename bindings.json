@@ -1,0 +1,22 @@
+{
+    "cppFile": "qtexample/core/bindings.cpp",
+    "rust": {
+        "dir": "rustexample",
+        "interfaceModule": "interface",
+        "implementationModule": "database"
+    },
+    "objects": {
+        "Database": {
+            "type": "Object",
+            "properties": {
+                "path": {
+                    "type": "QString",
+                    "write": true
+                },
+                "message": {
+                    "type": "QString"
+                }
+            }
+        }
+    }
+}

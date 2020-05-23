@@ -1,0 +1,10 @@
+# VSCode settings ( inverted selector )
+!.vscode
+
+# Build folder
+build/
+*.txt.user
+
+# Rust 
+**/target/
+**/Cargo.lock

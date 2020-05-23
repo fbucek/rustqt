@@ -1,0 +1,12 @@
+
+[package]
+name = "rustexample"
+version = "0.1.0"
+
+[dependencies]
+libc = "*"
+rocksdb = "0.14"
+
+[lib]
+name = "rustexample"
+crate-type = ["staticlib"]

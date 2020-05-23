@@ -1,0 +1,38 @@
+[tasks.bindings]
+script = [
+'''
+    rust_qt_binding_generator bindings.json
+'''
+]
+
+[tasks.rustexample]
+script = ['''
+    cd rustexample
+    unset CARGO_TARGET_DIR
+    cargo build
+''']
+
+[tasks.example]
+dependencies = ["bindings", "rustexample"]
+script = [
+'''
+    mkdir -p build
+    cd build
+    cmake ../qtexample
+    make -j16
+    QtExample.app/Contents/MacOs/QtExample
+'''
+]
+
+[tasks.cleanme]
+script = [
+'''
+    rm -rf build
+    rm -rf rustexample/target
+'''
+]
+
+[tasks.my-flow]
+dependencies = [
+    "example",
+]
