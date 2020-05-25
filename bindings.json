@@ -1,9 +1,9 @@
 {
-    "cppFile": "qtexample/core/bindings.cpp",
+    "cppFile": "qtexample/core/rocksdb.cpp",
     "rust": {
         "dir": "rustexample",
-        "interfaceModule": "interface",
-        "implementationModule": "database"
+        "interfaceModule": "dbinterface",
+        "implementationModule": "db"
     },
     "objects": {
         "Database": {
@@ -12,9 +12,31 @@
                 "path": {
                     "type": "QString",
                     "write": true
+                }
+            },
+            "functions": {
+                "addValue": {
+                    "return": "void",
+                    "mut": true,
+                    "arguments": [
+                        {
+                            "name": "key",
+                            "type": "QString"
+                        },
+                        {
+                            "name": "value",
+                            "type": "QString"
+                        }
+                    ]
                 },
-                "message": {
-                    "type": "QString"
+                "getValue": {
+                    "return": "QString",
+                    "arguments": [
+                        {
+                            "name": "key",
+                            "type": "QString"
+                        }
+                    ]
                 }
             }
         }

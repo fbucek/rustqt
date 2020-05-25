@@ -33,7 +33,7 @@ public:
 private:
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui = nullptr;
 };
 
 } // namespace widgets

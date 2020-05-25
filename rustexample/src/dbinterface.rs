@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicPtr, Ordering};
 use std::ptr::null;
 
-use database::*;
+use db::*;
 
 
 pub enum QString {}
@@ -42,7 +42,6 @@ pub struct DatabaseQObject {}
 
 pub struct DatabaseEmitter {
     qobject: Arc<AtomicPtr<DatabaseQObject>>,
-    message_changed: fn(*mut DatabaseQObject),
     path_changed: fn(*mut DatabaseQObject),
 }
 
@@ -58,19 +57,12 @@ impl DatabaseEmitter {
     pub fn clone(&mut self) -> DatabaseEmitter {
         DatabaseEmitter {
             qobject: self.qobject.clone(),
-            message_changed: self.message_changed,
             path_changed: self.path_changed,
         }
     }
     fn clear(&self) {
         let n: *const DatabaseQObject = null();
         self.qobject.store(n as *mut DatabaseQObject, Ordering::SeqCst);
-    }
-    pub fn message_changed(&mut self) {
-        let ptr = self.qobject.load(Ordering::SeqCst);
-        if !ptr.is_null() {
-            (self.message_changed)(ptr);
-        }
     }
     pub fn path_changed(&mut self) {
         let ptr = self.qobject.load(Ordering::SeqCst);
@@ -83,20 +75,19 @@ impl DatabaseEmitter {
 pub trait DatabaseTrait {
     fn new(emit: DatabaseEmitter) -> Self;
     fn emit(&mut self) -> &mut DatabaseEmitter;
-    fn message(&self) -> &str;
     fn path(&self) -> &str;
     fn set_path(&mut self, value: String);
+    fn add_value(&mut self, key: String, value: String) -> ();
+    fn get_value(&self, key: String) -> String;
 }
 
 #[no_mangle]
 pub extern "C" fn database_new(
     database: *mut DatabaseQObject,
-    database_message_changed: fn(*mut DatabaseQObject),
     database_path_changed: fn(*mut DatabaseQObject),
 ) -> *mut Database {
     let database_emit = DatabaseEmitter {
         qobject: Arc::new(AtomicPtr::new(database)),
-        message_changed: database_message_changed,
         path_changed: database_path_changed,
     };
     let d_database = Database::new(database_emit);
@@ -106,18 +97,6 @@ pub extern "C" fn database_new(
 #[no_mangle]
 pub unsafe extern "C" fn database_free(ptr: *mut Database) {
     Box::from_raw(ptr).emit().clear();
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn database_message_get(
-    ptr: *const Database,
-    p: *mut QString,
-    set: fn(*mut QString, *const c_char, c_int),
-) {
-    let o = &*ptr;
-    let v = o.message();
-    let s: *const c_char = v.as_ptr() as *const c_char;
-    set(p, s, to_c_int(v.len()));
 }
 
 #[no_mangle]
@@ -138,4 +117,24 @@ pub unsafe extern "C" fn database_path_set(ptr: *mut Database, v: *const c_ushor
     let mut s = String::new();
     set_string_from_utf16(&mut s, v, len);
     o.set_path(s);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn database_add_value(ptr: *mut Database, key_str: *const c_ushort, key_len: c_int, value_str: *const c_ushort, value_len: c_int) {
+    let mut key = String::new();
+    set_string_from_utf16(&mut key, key_str, key_len);
+    let mut value = String::new();
+    set_string_from_utf16(&mut value, value_str, value_len);
+    let o = &mut *ptr;
+    o.add_value(key, value)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn database_get_value(ptr: *const Database, key_str: *const c_ushort, key_len: c_int, d: *mut QString, set: fn(*mut QString, str: *const c_char, len: c_int)) {
+    let mut key = String::new();
+    set_string_from_utf16(&mut key, key_str, key_len);
+    let o = &*ptr;
+    let r = o.get_value(key);
+    let s: *const c_char = r.as_ptr() as *const c_char;
+    set(d, s, r.len() as i32);
 }

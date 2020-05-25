@@ -3,7 +3,8 @@
 
 // Core
 #include "core/core.h"
-#include "core/bindings.h"
+#include "core/rocksdb.h"
+
 
 namespace widgets {
 
@@ -12,19 +13,18 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // Prepare UI layout
     ui->setupUi(this);
+    QTextEdit *textEdit = new QTextEdit(this);
+    ui->centralWidget->layout()->addWidget(textEdit);
 
-
-    // Try to use Rust code
-    Database database; // This is the Rust object
+    // Create Rust object
+    Database database;
     database.setPath("rocksdb");
-    QMessageBox msgBox;
-    msgBox.setText(database.message());
-    msgBox.setModal(true);
-    msgBox.connect(&msgBox, &QMessageBox::finished, &msgBox, []() {
-        QCoreApplication::quit();
-    });
-    msgBox.exec();    
+    database.addValue("version", "0.15");
+
+    // Qt with Rust interact
+    textEdit->setText(database.getValue("version"));
 }
 
 MainWindow::~MainWindow()

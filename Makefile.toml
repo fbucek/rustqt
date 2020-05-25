@@ -12,17 +12,26 @@ script = ['''
     cargo build
 ''']
 
-[tasks.example]
+[tasks.buildall]
 dependencies = ["bindings", "rustexample"]
 script = [
 '''
-    mkdir -p build
+    mkdir -p build  
     cd build
     cmake ../qtexample
     make -j16
-    QtExample.app/Contents/MacOs/QtExample
 '''
 ]
+
+[tasks.run]
+dependencies = ["buildall"]
+script = [
+'''
+    cd build
+    QtExample.app/Contents/MacOs/QtExample &
+'''
+]
+
 
 [tasks.cleanme]
 script = [
@@ -32,7 +41,10 @@ script = [
 '''
 ]
 
-[tasks.my-flow]
-dependencies = [
-    "example",
-]
+
+# Overriding default commands
+[tasks.default]
+alias = "buildall"
+
+[tasks.clean]
+alias = "cleanme"
